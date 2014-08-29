@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: 'Rohan Liston'
+  description: 'Installs Golang from source, sets up the necessary development environment, and grabs the specified packages.'
+  company: 'SSIL'
+  license: 'BSD'
+  min_ansible_version: 1.6
+  platforms:
+  - name: 'Ubuntu'
+    versions:
+      - 'precise'
+  categories:
+    - 'development'
+dependencies: []

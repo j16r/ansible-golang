@@ -1,0 +1,63 @@
+---
+- name: 'Install dependencies'
+  apt: 'pkg={{ item }}'
+  sudo: yes
+  with_items:
+    - 'mercurial'  # For cloning the Golang repository
+    - 'git'        # For getting Go dependencies from GitHub
+
+- name: 'Clone the Go repository (takes a while on first run)'
+  hg: >
+    repo=https://code.google.com/p/go/
+    dest={{ go_clone_dir }}
+    revision=release-branch.go{{ go_version }}
+
+- name: 'Build Go (does not take long)'
+  command: >
+    ./make.bash
+    chdir={{ go_clone_dir }}/src
+    creates={{ go_bin_dir }}/go
+
+- name: 'Export Go-related environment variables in ~/.profile'
+  lineinfile: >
+    dest={{ go_user_home }}/.profile
+    create=yes
+    line="{{ item }}"
+  with_items:
+    - 'export GOPATH={{ go_path }}'
+    - 'export PATH=$PATH:{{ go_bin_dir }}:$GOPATH/bin'
+
+- name: 'Export Goenv-related environment variables in ~/.profile'
+  lineinfile: >
+    dest={{ go_user_home }}/.profile
+    create=yes
+    line="{{ item }}"
+  with_items:
+    - 'export GO_ENV={{ go_env }}'
+    - 'export GO_CONFIG={{ go_env_config }}'
+  when: 'use_go_env == true'
+
+- name: 'Create GOPATH'
+  sudo: 'yes'
+  file: >
+    path={{ go_path }}
+    state=directory
+    owner={{ go_user }}
+    group={{ go_user }}
+    mode=0755
+
+- name: 'Get global Go dependencies'
+  command: 'go get {{ item }}'
+  with_items: 'go_global_packages'
+  environment:
+    GOPATH: '{{ go_path }}'
+    PATH:   '$PATH:/usr/bin:{{ go_bin_dir }}'
+
+- name: 'Get local Go dependencies'
+  command: >
+    go get -d ./...
+    chdir={{ go_path }}/src/{{ app_name }}
+  environment:
+    GOPATH: '{{ go_path }}'
+    PATH:   '$PATH:/usr/bin:{{ go_bin_dir }}'
+  when: 'app_name != ""'

@@ -1,5 +1,6 @@
 ---
 - name: 'Install dependencies'
+  tags: 'golang'
   apt: 'pkg={{ item }}'
   sudo: yes
   with_items:
@@ -7,18 +8,21 @@
     - 'git'        # For getting Go dependencies from GitHub
 
 - name: 'Clone the Go repository (takes a while on first run)'
+  tags: 'golang'
   hg: >
     repo=https://code.google.com/p/go/
     dest={{ go_clone_dir }}
     revision=release-branch.go{{ go_version }}
 
 - name: 'Build Go (does not take long)'
+  tags: 'golang'
   command: >
     ./make.bash
     chdir={{ go_clone_dir }}/src
     creates={{ go_bin_dir }}/go
 
 - name: 'Export Go-related environment variables in ~/.profile'
+  tags: 'golang'
   lineinfile: >
     dest={{ go_user_home }}/.profile
     create=yes
@@ -28,6 +32,7 @@
     - 'export PATH=$PATH:{{ go_bin_dir }}:$GOPATH/bin'
 
 - name: 'Export Goenv-related environment variables in ~/.profile'
+  tags: 'golang'
   lineinfile: >
     dest={{ go_user_home }}/.profile
     create=yes
@@ -38,6 +43,7 @@
   when: 'use_go_env == true'
 
 - name: 'Create GOPATH'
+  tags: 'golang'
   sudo: 'yes'
   file: >
     path={{ go_path }}
@@ -47,6 +53,7 @@
     mode=0755
 
 - name: 'Get global Go dependencies'
+  tags: 'golang'
   command: 'go get {{ item }}'
   with_items: 'go_global_packages'
   environment:
@@ -54,10 +61,11 @@
     PATH:   '$PATH:/usr/bin:{{ go_bin_dir }}'
 
 - name: 'Get local Go dependencies'
+  tags: 'golang'
   command: >
     go get -d ./...
     chdir={{ go_path }}/src/{{ app_name }}
   environment:
     GOPATH: '{{ go_path }}'
-    PATH:   '$PATH:/usr/bin:{{ go_bin_dir }}'
+    PATH: '$PATH:/usr/bin:{{ go_bin_dir }}'
   when: 'app_name != ""'

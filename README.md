@@ -43,7 +43,7 @@ The default variables are as follows:
             - 'github.com/onsi/ginkgo/ginkgo' # Testing framework
             - 'github.com/onsi/gomega'        # Testing framework
             - 'github.com/golang/lint/golint' # Go linter
-            - 'github.com/Ge
+            - 'github.com/GeertJohan/fgt'     # Go linter piped through this to return proper exit codes
 
 # License
 

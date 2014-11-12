@@ -69,3 +69,15 @@
     GOPATH: '{{ go_path }}'
     PATH: '$PATH:/usr/bin:{{ go_bin_dir }}'
   when: 'app_name != ""'
+
+
+- name: 'Restore godep dependencies'
+  tags: 'golang'
+  command: >
+    {{ go_path }}/bin/godep restore
+    chdir={{ go_path }}/src/{{ app_name }}
+  environment:
+    GOPATH: '{{ go_path }}'
+    PATH: '$PATH:/usr/bin:{{ go_bin_dir }}'
+  when: 'app_name != ""'
+

@@ -70,7 +70,6 @@
     PATH: '$PATH:/usr/bin:{{ go_bin_dir }}'
   when: 'app_name != ""'
 
-
 - name: 'Restore godep dependencies'
   tags: 'golang'
   command: >
